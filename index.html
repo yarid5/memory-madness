@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Memory Madness</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #1e1e1e;
+      color: white;
+    }
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(4, 100px);
+      grid-gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .card {
+      width: 100px;
+      height: 100px;
+      background-color: #444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+    .front {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+    }
+    .flipped {
+      background-color: #fff;
+      color: black;
+    }
+    #credits {
+      position: fixed;
+      top: 50%;
+      right: 10px;
+      transform: rotate(90deg);
+      font-size: 14px;
+      color: #ccc;
+    }
+    #celebration {
+      display: none;
+      font-size: 30px;
+      color: gold;
+      margin-top: 20px;
+      animation: pop 1s ease-in-out infinite alternate;
+    }
+    @keyframes pop {
+      from { transform: scale(1); }
+      to { transform: scale(1.2); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Memory Madness</h1>
+  <p>Match all the pairs as fast as possible!</p>
+  <div id="game-board"></div>
+  <div id="celebration">🎉 YOU WIN! 🎉</div>
+  <div id="credits">Made by Ishmael</div>
+  <script>
+    const icons = ['⚽','🥅','🏆','👟','🧤','🎯','🔥','👨🏿‍🦲'];
+    let cards = [...icons, ...icons];
+    let firstCard = null;
+    let secondCard = null;
+    let lockBoard = false;
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function createBoard() {
+      shuffle(cards);
+      const board = document.getElementById('game-board');
+      board.innerHTML = '';
+      cards.forEach(icon => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.icon = icon;
+        card.innerHTML = '<div class="front">❓</div>';
+        card.addEventListener('click', flipCard);
+        board.appendChild(card);
+      });
+    }
+
+    function flipCard() {
+      if (lockBoard || this.classList.contains('flipped')) return;
+      this.textContent = this.dataset.icon;
+      this.classList.add('flipped');
+
+      if (!firstCard) {
+        firstCard = this;
+        return;
+      }
+
+      secondCard = this;
+      lockBoard = true;
+
+      if (firstCard.dataset.icon === secondCard.dataset.icon) {
+        resetTurn();
+        checkWin();
+      } else {
+        setTimeout(() => {
+          firstCard.innerHTML = '<div class="front">❓</div>';
+          secondCard.innerHTML = '<div class="front">❓</div>';
+          firstCard.classList.remove('flipped');
+          secondCard.classList.remove('flipped');
+          resetTurn();
+        }, 1000);
+      }
+    }
+
+    function resetTurn() {
+      [firstCard, secondCard] = [null, null];
+      lockBoard = false;
+    }
+
+    function checkWin() {
+      const flippedCards = document.querySelectorAll('.flipped');
+      if (flippedCards.length === cards.length) {
+        document.getElementById('celebration').style.display = 'block';
+      }
+    }
+
+    createBoard();
+  </script>
+</body>
+</html>
