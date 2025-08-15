@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Matching Game</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #2e8b57;
+    margin: 0;
+  }
+  h1 {
+    color: white;
+  }
+  #game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 70px);
+    grid-gap: 10px;
+    margin-bottom: 20px;
+  }
+  .card {
+    width: 70px;
+    height: 70px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  #footer {
+    color: white;
+  }
+  button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<h1>Card Matching Game</h1>
+<div id="game-board"></div>
+<button onclick="resetGame()">Reset Game</button>
+<p id="footer">Made by Ishmael | Allan is black</p>
+<script>
+const emojis = ['⚽','🚬','💣','👨🏿‍🦲','🍆','🥊']
+let cardsArray = [...emojis, ...emojis];
+let flippedCards = [];
+let matchedCount = 0;
+
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+function createBoard() {
+  const board = document.getElementById('game-board');
+  board.innerHTML = '';
+  shuffle(cardsArray).forEach((emoji, index) => {
+    const card = document.createElement('div');
+    card.classList.add('card');
+    card.dataset.emoji = emoji;
+    card.dataset.index = index;
+    card.textContent = '❓';
+    card.addEventListener('click', flipCard);
+    board.appendChild(card);
+  });
+}
+
+function flipCard() {
+  if (flippedCards.length < 2 && this.textContent === '❓') {
+    this.textContent = this.dataset.emoji;
+    flippedCards.push(this);
+
+    if (flippedCards.length === 2) {
+      setTimeout(checkMatch, 500);
+    }
+  }
+}
+
+function checkMatch() {
+  const [card1, card2] = flippedCards;
+  if (card1.dataset.emoji === card2.dataset.emoji) {
+    matchedCount += 2;
+    if (matchedCount === cardsArray.length) {
+      celebrateWin();
+    }
+  } else {
+    card1.textContent = '❓';
+    card2.textContent = '❓';
+  }
+  flippedCards = [];
+}
+
+function celebrateWin() {
+  document.body.style.backgroundColor = '#FFD700';
+  alert('🎉 Congratulations! You matched all cards! 🎉');
+}
+
+function resetGame() {
+  matchedCount = 0;
+  flippedCards = [];
+  createBoard();
+  document.body.style.backgroundColor = '#2e8b57';
+}
+
+createBoard();
+</script>
+</body>
+</html>
